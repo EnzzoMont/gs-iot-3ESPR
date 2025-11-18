@@ -1,19 +1,16 @@
 # 🚀 GS 2025 - IoT Upskilling Station: O Futuro do Trabalho
 
 > **Global Solutions 2025 - Engenharia de Software / IoT**
-> **Integrantes:** 
-[Caio Freitas] - [RM553190];
-[Enzzo Monteiro Barros Silva] - [RM552616];
-[Lana Andrade] - [RM552596]
+> **Integrantes:** [Caio Freitas] - [RM553190]; [Enzzo Monteiro Barros Silva] - [RM552616]; [Lana Andrade] - [RM552596]
 
 ## 📝 Descrição do Projeto
 
-[cite_start]O futuro do trabalho exige requalificação constante ("Upskilling") e um olhar mais humano para as competências socioemocionais ("Soft Skills")[cite: 1, 8].
+O futuro do trabalho exige requalificação constante ("Upskilling") e um olhar mais humano para as competências socioemocionais ("Soft Skills").
 
 A **Upskilling Station** é uma solução IoT desenvolvida para modernizar o processo de avaliação dos colaboradores e suas capacitações na empresa, buscando melhorar o conhecimento interno. Diferente de formulários estáticos e soluções rasas, nosso sistema utiliza uma estação física baseada em **ESP32** para capturar reações reais dos colaboradores diante de cenários de pressão, ética e desafios técnicos.
 
 ### 🎯 O Problema
-[cite_start]Não sabemos sempre as capacitações dos funcionários, mas entender como o colaborador reage sob pressão ou qual é seu nível real de inteligência emocional e prontidão técnica. Irá melhorar nas escolhas de cursos de capacitação e melhorar o ambiente corporativo[cite: 14].
+Não sabemos sempre as capacitações dos funcionários, mas entender como o colaborador reage sob pressão ou qual é seu nível real de inteligência emocional e prontidão técnica irá melhorar nas escolhas de cursos de capacitação e melhorar o ambiente corporativo.
 
 ### 💡 A Solução
 Uma estação de diagnóstico que combina:
@@ -33,7 +30,7 @@ O projeto utiliza uma arquitetura distribuída via protocolo **MQTT**, garantind
 * **4 Botões Físicos:** Seleção de respostas (A, B, C, D).
 * **Potenciômetro:** Simulação de sensor biométrico (GSR/Nível de Estresse).
 
-### [cite_start]📡 Comunicação e Protocolos (MQTT) [cite: 12, 22]
+### 📡 Comunicação e Protocolos (MQTT)
 
 O sistema utiliza um Broker público (`test.mosquitto.org`) e opera com trocas de mensagens JSON.
 
@@ -47,7 +44,7 @@ O sistema utiliza um Broker público (`test.mosquitto.org`) e opera com trocas d
 ## 🚀 Instruções de Uso
 
 ### 1. Hardware (Wokwi)
-1.  Acesse o projeto no simulador: **[https://wokwi.com/projects/447894206797080577]**
+1.  Acesse o projeto no simulador: **https://wokwi.com/projects/447894206797080577**
 2.  Certifique-se de que os arquivos `lcd_api.py` e `i2c_lcd.py` estão presentes na aba lateral.
 3.  Inicie a simulação (Play). O sistema ficará em "AGUARDANDO LOGIN".
 
@@ -71,7 +68,7 @@ O sistema utiliza um Broker público (`test.mosquitto.org`) e opera com trocas d
 ---
 
 ## 📋 Requisitos Atendidos
-- [x] [cite_start]Uso de ESP32 com MicroPython[cite: 12].
-- [x] [cite_start]Sensores (Botões/Potenciômetro) e Atuadores (LCD)[cite: 6].
-- [x] [cite_start]Comunicação MQTT com envio de JSON[cite: 22].
-- [x] [cite_start]Tema alinhado à Educação e Requalificação Profissional[cite: 8].
+- [x] Uso de ESP32 com MicroPython.
+- [x] Sensores (Botões/Potenciômetro) e Atuadores (LCD).
+- [x] Comunicação MQTT com envio de JSON.
+- [x] Tema alinhado à Educação e Requalificação Profissional.

@@ -1,9 +1,9 @@
 # 🚀 GS 2025 - IoT Upskilling Station: O Futuro do Trabalho
 
 > **Global Solutions 2025 - Engenharia de Software / IoT**
-> **Integrantes:** ``
-[Caio Freitas] - [RM553190]
-[Enzzo Monteiro Barros Silva] - [RM552616]
+> **Integrantes:** 
+[Caio Freitas] - [RM553190];
+[Enzzo Monteiro Barros Silva] - [RM552616];
 [Lana Andrade] - [RM552596]
 
 ## 📝 Descrição do Projeto

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Gestão - GS 2025</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background: #1a1a1a; color: white; font-family: sans-serif; padding: 20px; display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+        .sidebar { background: #2d2d2d; padding: 20px; border-radius: 10px; }
+        .main { background: #2d2d2d; padding: 20px; border-radius: 10px; }
+        h2 { color: #4caf50; border-bottom: 1px solid #555; padding-bottom: 10px; }
+        .info-item { margin-bottom: 15px; }
+        .info-label { color: #888; font-size: 0.9em; }
+        .info-value { font-size: 1.2em; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>Candidato Atual</h2>
+    <div class="info-item">
+        <div class="info-label">Nome</div>
+        <div class="info-value" id="nome">Aguardando...</div>
+    </div>
+    <div class="info-item">
+        <div class="info-label">Matrícula</div>
+        <div class="info-value" id="matricula">--</div>
+    </div>
+    <div class="info-item">
+        <div class="info-label">Área</div>
+        <div class="info-value" id="area">--</div>
+    </div>
+    <div class="info-item" style="margin-top: 50px">
+        <div class="info-label">Status</div>
+        <div class="info-value" id="status" style="color: orange">Aguardando Login</div>
+    </div>
+</div>
+
+<div class="main">
+    <h2>Mapeamento de Skills em Tempo Real</h2>
+    <div style="height: 400px; width: 100%;">
+        <canvas id="radarChart"></canvas>
+    </div>
+</div>
+
+<script>
+    const client = new Paho.MQTT.Client("test.mosquitto.org", 8080, "gestor_" + parseInt(Math.random()*1000));
+    
+    // Gráfico
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    let chartData = [50, 50, 50, 50, 50]; 
+    const chart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['IA/Técnica', 'Soft Skills', 'Dados', 'Gestão', 'Ética'],
+            datasets: [{
+                label: 'Score Atual',
+                data: chartData,
+                backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                borderColor: '#4caf50',
+                pointBackgroundColor: '#fff'
+            }]
+        },
+        options: { scales: { r: { suggestedMin: 0, suggestedMax: 100, grid: { color: '#444' } } } }
+    });
+
+    client.onMessageArrived = (msg) => {
+        const topic = msg.destinationName;
+        const dados = JSON.parse(msg.payloadString);
+
+        if (topic.includes("controle")) {
+            // Novo Login detectado
+            document.getElementById("nome").innerText = dados.nome;
+            document.getElementById("matricula").innerText = dados.matricula;
+            document.getElementById("area").innerText = dados.area;
+            document.getElementById("status").innerText = "EM PROVA";
+            document.getElementById("status").style.color = "#4caf50";
+            chartData = [50, 50, 50, 50, 50];
+            chart.data.datasets[0].data = chartData;
+            chart.update();
+        } 
+        else if (topic.includes("respostas") && dados.tipo === "RESPOSTA") {
+            let scoreChange = (dados.resposta === "A" || dados.resposta === "B") ? 10 : -10;       
+            if(dados.pergunta.includes("IA") || dados.pergunta.includes("Python")) chartData[0] += scoreChange;
+            else if(dados.pergunta.includes("Time") || dados.pergunta.includes("Colega")) chartData[1] += scoreChange;
+            else if(dados.pergunta.includes("Vendas") || dados.pergunta.includes("Dados")) chartData[2] += scoreChange;
+            else chartData[3] += scoreChange;
+            
+            chart.update();
+        }
+        else if (dados.tipo === "FIM_PROVA") {
+            document.getElementById("status").innerText = "FINALIZADO";
+            document.getElementById("status").style.color = "#00bcd4";
+        }
+    };
+
+    client.connect({onSuccess: () => {
+        client.subscribe("fiap/gs2025/controle"); 
+        client.subscribe("fiap/gs2025/respostas"); 
+    }});
+</script>
+</body>
+</html>

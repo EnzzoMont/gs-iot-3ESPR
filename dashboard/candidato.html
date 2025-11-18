@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Área do Colaborador</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 600px; text-align: center; }
+        
+        /* Tela de Login */
+        #login-screen input, #login-screen select { width: 90%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+        button { background-color: #007bff; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 8px; cursor: pointer; width: 100%; transition: 0.3s; }
+        button:hover { background-color: #0056b3; }
+        
+        /* Tela de Pergunta (Oculta no início) */
+        #question-screen { display: none; }
+        .scenario { font-size: 1.5em; color: #333; margin: 30px 0; line-height: 1.5; text-align: left; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .opt { padding: 20px; border-radius: 8px; font-weight: bold; color: white; }
+        .a { background: #28a745; } .b { background: #ffc107; color: black; } 
+        .c { background: #dc3545; } .d { background: #17a2b8; }
+
+        h1 { color: #007bff; }
+        .footer-msg { margin-top: 20px; color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="login-screen">
+        <h1>Upskilling Station 2025</h1>
+        <p>Insira seus dados para iniciar o diagnóstico de carreira.</p>
+        <input type="text" id="nome" placeholder="Nome Completo">
+        <input type="text" id="matricula" placeholder="Matrícula (ex: RM12345)">
+        <select id="area">
+            <option>Engenharia de Software</option>
+            <option>Dados & Analytics</option>
+            <option>Gestão & Produto</option>
+        </select>
+        <button onclick="iniciarProva()">INICIAR DIAGNÓSTICO</button>
+    </div>
+
+    <div id="question-screen">
+        <h2 id="q-theme" style="color: #888; text-transform: uppercase;">Preparando...</h2>
+        <h1 id="q-title">Olhe para o dispositivo IoT</h1>
+        <p class="scenario" id="q-scenario">Aguarde o carregamento da próxima questão...</p>
+        <div class="options">
+            <div class="opt a" id="opt-a">A</div>
+            <div class="opt b" id="opt-b">B</div>
+            <div class="opt c" id="opt-c">C</div>
+            <div class="opt d" id="opt-d">D</div>
+        </div>
+        <p class="footer-msg">Responda utilizando os botões físicos.</p>
+    </div>
+</div>
+
+<script>
+    const questionsDB = {
+        "1. Overfitting": { theme: "IA Técnica", fullTitle: "Overfitting", scenario: "O modelo decora os dados de treino, mas erra tudo no teste real. Ação?", options: ["A) Mais Dados", "B) Ignoro", "C) Desligo", "D) Culpo User"] },
+        "2. Vies Dados": { theme: "Ética", fullTitle: "Viés Detectado", scenario: "Seu Dataset tem preconceito histórico. O que fazer?", options: ["A) Uso assim", "B) Corrijo", "C) Escondo", "D) Ignoro"] },
+        "3. Modelo Lento": { theme: "Engenharia", fullTitle: "Latência", scenario: "A IA demora 10s para responder o cliente.", options: ["A) Server Novo", "B) Otimizo", "C) Deixo assim", "D) Mato a IA"] },
+        "4. Alucinacao LLM": { theme: "GenAI", fullTitle: "Alucinação", scenario: "O Chatbot inventou uma promoção falsa.", options: ["A) Limito Prompt", "B) Pago", "C) Desligo", "D) Culpo Dev"] },
+        "5. Python vs C++": { theme: "Edge AI", fullTitle: "Edge Computing", scenario: "Processar vídeo em dispositivo fraco.", options: ["A) Python", "B) C++", "C) Nuvem", "D) Desisto"] }
+    };
+
+    const client = new Paho.MQTT.Client("test.mosquitto.org", 8080, "candidato_" + parseInt(Math.random()*1000));
+
+    function iniciarProva() {
+        const nome = document.getElementById("nome").value;
+        const mat = document.getElementById("matricula").value;
+        const area = document.getElementById("area").value;
+
+        if(!nome || !mat) { alert("Preencha tudo!"); return; }
+
+        const payload = JSON.stringify({ acao: "INICIAR_TESTE", nome: nome, matricula: mat, area: area });
+        client.send("fiap/gs2025/controle", payload, 0, false);
+
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("question-screen").style.display = "block";
+    }
+
+    client.onMessageArrived = (msg) => {
+        const dados = JSON.parse(msg.payloadString);
+        if (dados.tipo === "PERGUNTA_INICIO") {
+            const q = questionsDB[dados.pergunta];
+            if (q) {
+                document.getElementById("q-theme").innerText = q.theme;
+                document.getElementById("q-title").innerText = q.fullTitle;
+                document.getElementById("q-scenario").innerText = q.scenario;
+                document.getElementById("opt-a").innerText = q.options[0];
+                document.getElementById("opt-b").innerText = q.options[1];
+                document.getElementById("opt-c").innerText = q.options[2];
+                document.getElementById("opt-d").innerText = q.options[3];
+            } else {
+                document.getElementById("q-scenario").innerText = dados.pergunta;
+            }
+        } else if (dados.tipo === "FIM_PROVA") {
+            document.body.innerHTML = "<h1 style='text-align:center; margin-top:100px'>Obrigado! <br>Sessão Finalizada.</h1>";
+        }
+    };
+
+    client.connect({onSuccess: () => { client.subscribe("fiap/gs2025/respostas"); }});
+</script>
+</body>
+</html>
